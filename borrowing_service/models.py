@@ -16,3 +16,6 @@ class Borrowing(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return f"User: {self.user.first_name} email: {self.user.email}, Book: {self.book.title}"
