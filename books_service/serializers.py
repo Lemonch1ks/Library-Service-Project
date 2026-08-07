@@ -10,7 +10,7 @@ class BookSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "author",
-            "Cover",
+            "cover",
             "inventory",
-            "Daily_fee",
+            "daily_fee",
         )
