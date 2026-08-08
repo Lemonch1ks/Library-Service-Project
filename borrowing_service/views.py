@@ -34,7 +34,8 @@ from borrowing_service.serializers import (
                 location=OpenApiParameter.QUERY,
                 description=(
                     "Filter by user id. Effective for staff users. "
-                    "Non-staff users are still restricted to their own borrowings."
+                    "Non-staff users are still restricted to "
+                    "their own borrowings."
                 ),
             ),
             OpenApiParameter(
@@ -56,13 +57,17 @@ from borrowing_service.serializers import (
     post=extend_schema(
         description=(
             "Create a borrowing for the authenticated user. "
-            "The selected book inventory is decreased by 1 when the book is available."
+            "The selected book inventory is decreased by 1 "
+            "when the book is available."
         ),
         request=BorrowingCreateSerializer,
         responses={
             201: BorrowingCreateSerializer,
             400: OpenApiResponse(
-                description="Validation error or the selected book is not available."
+                description=(
+                    "Validation error or the selected book "
+                    "is not available."
+                )
             ),
             401: OpenApiResponse(description="Authentication required."),
         },
@@ -145,7 +150,8 @@ class BorrowingReturnView(generics.GenericAPIView):
         description=(
             "Return a borrowing visible to the authenticated user. "
             "No request body is required. "
-            "This sets `actual_return_date` to today and increases the related "
+            "This sets `actual_return_date` to today and "
+            "increases the related "
             "book inventory by 1. Non-staff users can return only their own "
             "borrowings; staff users can return any borrowing."
         ),
@@ -153,7 +159,10 @@ class BorrowingReturnView(generics.GenericAPIView):
         responses={
             200: BorrowingDetailSerializer,
             400: OpenApiResponse(
-                description="Borrowing already returned or return date validation failed."
+                description=(
+                    "Borrowing already returned or "
+                    "return date validation failed."
+                )
             ),
             401: OpenApiResponse(description="Authentication required."),
             404: OpenApiResponse(

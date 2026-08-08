@@ -1,5 +1,9 @@
 from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from drf_spectacular.utils import (
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import generics, permissions
 
 from users_service.serializers import UserCreateSerializer, UserSerializer
@@ -31,7 +35,10 @@ class CreateUser(generics.CreateAPIView):
         },
     ),
     patch=extend_schema(
-        description="Partially update the currently authenticated user's profile.",
+        description=(
+            "Partially update the currently "
+            "authenticated user's profile."
+        ),
         responses={
             200: UserSerializer,
             401: OpenApiResponse(description="Authentication required."),

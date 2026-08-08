@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.test import TestCase
 
 
 class UserServiceTests(TestCase):
@@ -72,4 +72,6 @@ class UserServiceTests(TestCase):
         response = self.client.delete(reverse("users_service:user_detail"))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())
+        self.assertFalse(
+            get_user_model().objects.filter(pk=self.user.pk).exists()
+        )

@@ -16,14 +16,26 @@ def validate_borrowing_dates(
             {"borrow_date": "Borrow date cannot be in the future."}
         )
 
-    if borrow_date and expected_return_date and expected_return_date <= borrow_date:
+    if (
+        borrow_date
+        and expected_return_date
+        and expected_return_date <= borrow_date
+    ):
         raise serializers.ValidationError(
-            {"expected_return_date": "Expected return date must be after borrow date."}
+            {
+                "expected_return_date": (
+                    "Expected return date must be after borrow date."
+                )
+            }
         )
 
     if borrow_date and actual_return_date and actual_return_date < borrow_date:
         raise serializers.ValidationError(
-            {"actual_return_date": "Actual return date must be after borrow date."}
+            {
+                "actual_return_date": (
+                    "Actual return date must be after borrow date."
+                )
+            }
         )
 
 
@@ -74,7 +86,10 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     borrow_date = serializers.DateField(required=True)
     expected_return_date = serializers.DateField(required=True)
-    actual_return_date = serializers.DateField(read_only=True, allow_null=True)
+    actual_return_date = serializers.DateField(
+        read_only=True,
+        allow_null=True,
+    )
 
     class Meta:
         model = Borrowing
@@ -109,6 +124,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             book.inventory -= 1
             book.save(update_fields=["inventory"])
 
-            borrowing = Borrowing.objects.create(user=request.user, **validated_data)
+            borrowing = Borrowing.objects.create(
+                user=request.user,
+                **validated_data,
+            )
 
         return borrowing

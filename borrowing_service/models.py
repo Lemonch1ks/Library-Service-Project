@@ -43,4 +43,8 @@ class Borrowing(models.Model):
             )
 
     def __str__(self):
-        return f"User: {self.user.first_name} email: {self.user.email}, Book: {self.book.title}"
+        return (
+            f"User: {self.user.first_name} "
+            f"email: {self.user.email}, "
+            f"Book: {self.book.title}"
+        )

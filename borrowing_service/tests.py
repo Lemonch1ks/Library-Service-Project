@@ -49,7 +49,9 @@ class BorrowingDateValidationTests(TestCase):
         )
         self.assertNotIn("actual_return_date", serializer.validated_data)
 
-    def test_create_serializer_rejects_expected_return_before_borrow_date(self):
+    def test_create_serializer_rejects_expected_return_before_borrow_date(
+        self,
+    ):
         serializer = BorrowingCreateSerializer(
             data={
                 "borrow_date": date.today(),
