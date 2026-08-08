@@ -8,7 +8,9 @@ from borrowing_service.models import Borrowing
 from users_service.serializers import UserSerializer
 
 
-def validate_borrowing_dates(borrow_date, expected_return_date, actual_return_date=None):
+def validate_borrowing_dates(
+    borrow_date, expected_return_date, actual_return_date=None
+):
     if borrow_date and borrow_date > date.today():
         raise serializers.ValidationError(
             {"borrow_date": "Borrow date cannot be in the future."}

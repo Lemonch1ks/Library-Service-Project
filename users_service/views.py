@@ -18,19 +18,31 @@ class CreateUser(generics.CreateAPIView):
 @extend_schema_view(
     get=extend_schema(
         description="Retrieve the currently authenticated user's profile.",
-        responses={200: UserSerializer, 401: OpenApiResponse(description="Authentication required.")},
+        responses={
+            200: UserSerializer,
+            401: OpenApiResponse(description="Authentication required."),
+        },
     ),
     put=extend_schema(
         description="Replace the currently authenticated user's profile.",
-        responses={200: UserSerializer, 401: OpenApiResponse(description="Authentication required.")},
+        responses={
+            200: UserSerializer,
+            401: OpenApiResponse(description="Authentication required."),
+        },
     ),
     patch=extend_schema(
         description="Partially update the currently authenticated user's profile.",
-        responses={200: UserSerializer, 401: OpenApiResponse(description="Authentication required.")},
+        responses={
+            200: UserSerializer,
+            401: OpenApiResponse(description="Authentication required."),
+        },
     ),
     delete=extend_schema(
         description="Delete the currently authenticated user's profile.",
-        responses={204: OpenApiResponse(description="User deleted."), 401: OpenApiResponse(description="Authentication required.")},
+        responses={
+            204: OpenApiResponse(description="User deleted."),
+            401: OpenApiResponse(description="Authentication required."),
+        },
     ),
 )
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):

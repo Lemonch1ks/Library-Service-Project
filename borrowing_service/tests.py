@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -82,6 +84,60 @@ class BorrowingDateValidationTests(TestCase):
             str(response.data["borrow_date"]),
             "Borrow date cannot be in the future.",
         )
+
+
+class BorrowingModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="model@example.com",
+            password="password123",
+            first_name="Model",
+            last_name="Tester",
+        )
+        self.book = Book.objects.create(
+            title="Working Effectively with Legacy Code",
+            author="Michael Feathers",
+            cover=Book.BookCoverChoices.HARD,
+            inventory=2,
+            daily_fee="6.00",
+        )
+
+    def test_model_clean_rejects_future_borrow_date(self):
+        borrowing = Borrowing(
+            user=self.user,
+            book=self.book,
+            borrow_date=date.today() + timedelta(days=1),
+            expected_return_date=date.today() + timedelta(days=2),
+        )
+
+        with self.assertRaises(ValidationError) as error:
+            borrowing.full_clean()
+
+        self.assertEqual(
+            error.exception.message_dict["borrow_date"][0],
+            "Borrow date cannot be in the future.",
+        )
+
+    def test_constraint_rejects_expected_return_on_or_before_borrow_date(self):
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Borrowing.objects.create(
+                    user=self.user,
+                    book=self.book,
+                    borrow_date=date.today(),
+                    expected_return_date=date.today(),
+                )
+
+    def test_constraint_rejects_actual_return_before_borrow_date(self):
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Borrowing.objects.create(
+                    user=self.user,
+                    book=self.book,
+                    borrow_date=date.today(),
+                    expected_return_date=date.today() + timedelta(days=2),
+                    actual_return_date=date.today() - timedelta(days=1),
+                )
 
 
 class BorrowingApiTests(TestCase):
