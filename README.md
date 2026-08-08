@@ -5,8 +5,8 @@ project is built with Django REST Framework and uses JWT authentication. It is
 intended to replace manual tracking of book inventory and borrowing records.
 
 The current implementation covers the selected FLEX tasks for the Books,
-Users, Borrowings, and Telegram notification services. Stripe payments,
-scheduled overdue checks, and Docker Compose deployment are not implemented.
+Users, Borrowings, and Telegram notification services. Stripe payments and
+scheduled overdue checks are not implemented.
 
 ## Features
 
@@ -36,6 +36,7 @@ scheduled overdue checks, and Docker Compose deployment are not implemented.
 - Telegram Bot API
 - coverage
 - SQLite
+- Docker and Docker Compose
 
 ## Getting Started
 
@@ -115,6 +116,26 @@ python manage.py runserver
 ```
 
 The API will be available at `http://127.0.0.1:8000/`.
+
+## Running with Docker
+
+Create `.env` from the provided template and replace its placeholder values.
+Then build and start the application:
+
+```bash
+docker compose up --build
+```
+
+Docker Compose applies migrations automatically and starts the API at
+`http://127.0.0.1:8000/`. The SQLite database is stored in the named
+`sqlite_data` volume, so it is preserved when the application container is
+recreated.
+
+Stop the application with:
+
+```bash
+docker compose down
+```
 
 ## Authentication
 
@@ -336,6 +357,8 @@ Library-Service-Project/
 - users_service/       # Custom user model, registration, and profile API
 - permissions/         # Shared REST framework permissions
 - library_conf/        # Django settings and root URL configuration
+- Dockerfile
+- docker-compose.yml
 - manage.py
 - requirements.txt
 - README.md
@@ -361,4 +384,3 @@ part of the current implementation:
 
 - Stripe payments and overdue fines
 - Scheduled overdue borrowing checks
-- Docker Compose deployment

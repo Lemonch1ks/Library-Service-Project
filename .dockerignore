@@ -32,6 +32,7 @@ pip-delete-this-directory.txt
 .mypy_cache/
 .dmypy.json
 *.egg-info/
+db.sqlite3
 
 # Version control
 .git/

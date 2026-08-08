@@ -16,4 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 COPY --chown=django-user:django-user . .
 
+RUN mkdir -p /data && \
+    chown -R django-user:django-user /app /data
+
 USER django-user
