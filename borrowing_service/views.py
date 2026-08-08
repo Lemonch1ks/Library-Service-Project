@@ -44,17 +44,31 @@ class BorrowingCreateListView(generics.ListCreateAPIView):
 
 
 class BorrowingDetailView(generics.RetrieveAPIView):
-    queryset = Borrowing.objects.all()
     serializer_class = BorrowingDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = Borrowing.objects.all()
+
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
+
+        return queryset
+
 
 class BorrowingReturnView(generics.GenericAPIView):
-    permissions = [
+    permission_classes = [
         permissions.IsAuthenticated,
     ]
-    queryset = Borrowing.objects.all()
     serializer_class = BorrowingDetailSerializer
+
+    def get_queryset(self):
+        queryset = Borrowing.objects.all()
+
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
         borrowing = self.get_object()

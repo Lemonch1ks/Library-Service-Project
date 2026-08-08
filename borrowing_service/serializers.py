@@ -110,32 +110,3 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             borrowing = Borrowing.objects.create(user=request.user, **validated_data)
 
         return borrowing
-
-
-class BorrowingReturnSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Borrowing
-        fields = (
-            "borrow_date",
-            "expected_return_date",
-            "actual_return_date",
-            "book",
-        )
-
-    def create(self, validated_data):
-        request = self.context["request"]
-
-        with transaction.atomic():
-            book = validated_data["book"]
-
-            if book.inventory <= 0:
-                raise serializers.ValidationError(
-                    {"book": "This book is not available."}
-                )
-
-            book.inventory += 1
-            book.save(update_fields=["inventory"])
-
-            borrowing = Borrowing.objects.create(user=request.user, **validated_data)
-
-        return borrowing
