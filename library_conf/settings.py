@@ -70,11 +70,16 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'Library Service API',
+    'DESCRIPTION': (
+        'API for managing books, user accounts, and borrowings. '
+        'Book read endpoints are public. Borrowing endpoints require JWT '
+        'authentication. Due to the current JWT configuration, authenticated '
+        'requests must send the token in the `Authorize: Bearer <token>` header.'
+    ),
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 

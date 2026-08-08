@@ -43,7 +43,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     borrow_date = serializers.DateField(required=True)
     expected_return_date = serializers.DateField(required=True)
-    actual_return_date = serializers.DateField(required=False)
+    actual_return_date = serializers.DateField(required=False, allow_null=True)
 
     class Meta:
         model = Borrowing
@@ -72,7 +72,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     borrow_date = serializers.DateField(required=True)
     expected_return_date = serializers.DateField(required=True)
-    actual_return_date = serializers.DateField(read_only=True)
+    actual_return_date = serializers.DateField(read_only=True, allow_null=True)
 
     class Meta:
         model = Borrowing

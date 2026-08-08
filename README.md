@@ -38,7 +38,7 @@ implemented yet.
 ```bash
 git clone https://github.com/Lemonch1ks/Library-Service-Project.git
 cd Library-Service-Project
-git checkout borrowing_service
+
 ```
 
 ### 2. Create and activate a virtual environment

@@ -1,5 +1,12 @@
 from datetime import date
 
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from django.db import transaction
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
@@ -13,6 +20,54 @@ from borrowing_service.serializers import (
 )
 
 
+@extend_schema_view(
+    get=extend_schema(
+        description=(
+            "List borrowings visible to the authenticated user. "
+            "Non-staff users only see their own borrowings. "
+            "Staff users may inspect all borrowings and can filter by user."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="user_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description=(
+                    "Filter by user id. Effective for staff users. "
+                    "Non-staff users are still restricted to their own borrowings."
+                ),
+            ),
+            OpenApiParameter(
+                name="is_active",
+                type=OpenApiTypes.BOOL,
+                location=OpenApiParameter.QUERY,
+                description=(
+                    "Filter by return state. "
+                    "`true` returns borrowings with no `actual_return_date`; "
+                    "`false` returns already returned borrowings."
+                ),
+            ),
+        ],
+        responses={
+            200: BorrowingListSerializer(many=True),
+            401: OpenApiResponse(description="Authentication required."),
+        },
+    ),
+    post=extend_schema(
+        description=(
+            "Create a borrowing for the authenticated user. "
+            "The selected book inventory is decreased by 1 when the book is available."
+        ),
+        request=BorrowingCreateSerializer,
+        responses={
+            201: BorrowingCreateSerializer,
+            400: OpenApiResponse(
+                description="Validation error or the selected book is not available."
+            ),
+            401: OpenApiResponse(description="Authentication required."),
+        },
+    ),
+)
 class BorrowingCreateListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Borrowing.objects.all()
@@ -43,6 +98,22 @@ class BorrowingCreateListView(generics.ListCreateAPIView):
             return BorrowingCreateSerializer
 
 
+@extend_schema_view(
+    get=extend_schema(
+        description=(
+            "Retrieve a borrowing visible to the authenticated user. "
+            "Non-staff users can retrieve only their own borrowings; "
+            "staff users can retrieve any borrowing."
+        ),
+        responses={
+            200: BorrowingDetailSerializer,
+            401: OpenApiResponse(description="Authentication required."),
+            404: OpenApiResponse(
+                description="Borrowing not found or not visible to this user."
+            ),
+        },
+    )
+)
 class BorrowingDetailView(generics.RetrieveAPIView):
     serializer_class = BorrowingDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -70,6 +141,26 @@ class BorrowingReturnView(generics.GenericAPIView):
 
         return queryset
 
+    @extend_schema(
+        description=(
+            "Return a borrowing visible to the authenticated user. "
+            "No request body is required. "
+            "This sets `actual_return_date` to today and increases the related "
+            "book inventory by 1. Non-staff users can return only their own "
+            "borrowings; staff users can return any borrowing."
+        ),
+        request=None,
+        responses={
+            200: BorrowingDetailSerializer,
+            400: OpenApiResponse(
+                description="Borrowing already returned or return date validation failed."
+            ),
+            401: OpenApiResponse(description="Authentication required."),
+            404: OpenApiResponse(
+                description="Borrowing not found or not visible to this user."
+            ),
+        },
+    )
     def post(self, request, *args, **kwargs):
         borrowing = self.get_object()
 
