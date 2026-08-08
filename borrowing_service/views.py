@@ -27,8 +27,11 @@ class BorrowingCreateListView(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 actual_return_date__isnull=is_active.lower() == "true"
             )
-        if self.request.user.is_authenticated:
-            queryset = queryset.filter(user_id=self.request.user.id)
+
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
+        elif user_id:
+            queryset = queryset.filter(user_id=user_id)
 
         return queryset
 
@@ -42,9 +45,13 @@ class BorrowingCreateListView(generics.ListCreateAPIView):
 class BorrowingDetailView(generics.RetrieveAPIView):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class BorrowingReturnView(generics.GenericAPIView):
+    permissions = [
+        permissions.IsAuthenticated,
+    ]
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingDetailSerializer
 
