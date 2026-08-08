@@ -19,7 +19,7 @@ def validate_borrowing_dates(borrow_date, expected_return_date, actual_return_da
             {"expected_return_date": "Expected return date must be after borrow date."}
         )
 
-    if borrow_date and actual_return_date and actual_return_date <= borrow_date:
+    if borrow_date and actual_return_date and actual_return_date < borrow_date:
         raise serializers.ValidationError(
             {"actual_return_date": "Actual return date must be after borrow date."}
         )
