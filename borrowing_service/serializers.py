@@ -6,14 +6,14 @@ from rest_framework import serializers
 from books_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
 from users_service.serializers import UserSerializer
-
+from borrowing_service.telegram import send_telegram_message
 
 def validate_borrowing_dates(
     borrow_date, expected_return_date, actual_return_date=None
 ):
-    if borrow_date and borrow_date > date.today():
+    if borrow_date and borrow_date < date.today():
         raise serializers.ValidationError(
-            {"borrow_date": "Borrow date cannot be in the future."}
+            {"borrow_date": "Borrow date cannot be in the past."}
         )
 
     if (
@@ -84,7 +84,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-    borrow_date = serializers.DateField(required=True)
+    borrow_date = serializers.DateField(default=date.today())
     expected_return_date = serializers.DateField(required=True)
     actual_return_date = serializers.DateField(
         read_only=True,
@@ -128,5 +128,14 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                 user=request.user,
                 **validated_data,
             )
+            message = (
+                "📚 New borrowing\n"
+                f"User: {borrowing.user.email}\n"
+                f"Book: {book.title}\n"
+                f"Borrow date: {borrowing.borrow_date}\n"
+                f"Expected return: {borrowing.expected_return_date}"
+            )
+
+            transaction.on_commit(lambda: send_telegram_message(message))
 
         return borrowing
