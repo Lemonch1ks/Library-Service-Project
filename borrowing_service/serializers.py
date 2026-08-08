@@ -11,9 +11,9 @@ from borrowing_service.telegram import send_telegram_message
 def validate_borrowing_dates(
     borrow_date, expected_return_date, actual_return_date=None
 ):
-    if borrow_date and borrow_date > date.today():
+    if borrow_date and borrow_date < date.today():
         raise serializers.ValidationError(
-            {"borrow_date": "Borrow date cannot be in the future."}
+            {"borrow_date": "Borrow date cannot be in the past."}
         )
 
     if (
@@ -84,7 +84,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-    borrow_date = serializers.DateField(required=True)
+    borrow_date = serializers.DateField(default=date.today())
     expected_return_date = serializers.DateField(required=True)
     actual_return_date = serializers.DateField(
         read_only=True,

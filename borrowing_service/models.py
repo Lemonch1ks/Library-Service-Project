@@ -37,9 +37,9 @@ class Borrowing(models.Model):
     def clean(self):
         super().clean()
 
-        if self.borrow_date and self.borrow_date > date.today():
+        if self.borrow_date and self.borrow_date < date.today():
             raise ValidationError(
-                {"borrow_date": "Borrow date cannot be in the future."}
+                {"borrow_date": "Borrow date cannot be in the past."}
             )
 
     def __str__(self):
