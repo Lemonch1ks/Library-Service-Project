@@ -9,6 +9,7 @@ from borrowing_service.serializers import (
     BorrowingListSerializer,
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
+    validate_borrowing_dates,
 )
 
 
@@ -64,7 +65,13 @@ class BorrowingReturnView(generics.GenericAPIView):
             )
 
         with transaction.atomic():
-            borrowing.actual_return_date = date.today()
+            return_date = date.today()
+            validate_borrowing_dates(
+                borrow_date=borrowing.borrow_date,
+                expected_return_date=borrowing.expected_return_date,
+                actual_return_date=return_date,
+            )
+            borrowing.actual_return_date = return_date
             borrowing.save(update_fields=["actual_return_date"])
 
             book = borrowing.book
