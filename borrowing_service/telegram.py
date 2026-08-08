@@ -16,7 +16,7 @@ def send_telegram_message(text):
         logger.warning("Telegram credentials are not configured.")
         return False
 
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    url = f"https: //api.telegram.org/bot{token}/sendMessage"
 
     payload = json.dumps(
         {

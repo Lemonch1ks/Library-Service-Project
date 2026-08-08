@@ -8,6 +8,7 @@ from borrowing_service.models import Borrowing
 from users_service.serializers import UserSerializer
 from borrowing_service.telegram import send_telegram_message
 
+
 def validate_borrowing_dates(
     borrow_date,
     expected_return_date,
