@@ -5,8 +5,8 @@ project is built with Django REST Framework and uses JWT authentication. It is
 intended to replace manual tracking of book inventory and borrowing records.
 
 The current implementation covers the selected FLEX tasks for the Books,
-Users, and Borrowings services. Payments and Telegram notifications are not
-implemented yet.
+Users, Borrowings, and Telegram notification services. Stripe payments,
+scheduled overdue checks, and Docker Compose deployment are not implemented.
 
 ## Features
 
@@ -19,8 +19,11 @@ implemented yet.
 - Borrowing date validation
 - Active and returned borrowing filters
 - User-specific borrowing access with staff-level access to all records
+- Telegram notifications when a new borrowing is created
+- Environment-based storage for Telegram credentials
 - OpenAPI schema, Swagger UI, and ReDoc documentation
-- Automated tests for the Borrowings service
+- Automated tests for the Books, Users, and Borrowings services
+- Test coverage reporting with `coverage`
 
 ## Technology Stack
 
@@ -29,6 +32,9 @@ implemented yet.
 - Django REST Framework
 - Simple JWT
 - drf-spectacular
+- python-dotenv
+- Telegram Bot API
+- coverage
 - SQLite
 
 ## Getting Started
@@ -63,19 +69,46 @@ venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-### 4. Apply migrations
+### 4. Configure Telegram notifications
+
+Copy the environment variable template:
+
+Linux and macOS:
+
+```bash
+cp .env.sample .env
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.sample .env
+```
+
+Set the credentials in `.env`:
+
+```env
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
+
+The `.env` file is ignored by Git and must never be committed. If Telegram
+credentials are not configured, borrowings can still be created, but the
+notification is skipped and a warning is written to the application log.
+
+### 5. Apply migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 5. Create an administrator account
+### 6. Create an administrator account
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 6. Start the development server
+### 7. Start the development server
 
 ```bash
 python manage.py runserver
@@ -217,8 +250,13 @@ Content-Type: application/json
 
 The authenticated user is attached automatically. The selected book must have
 available inventory. After successful creation, its inventory is decreased by
-one. `expected_return_date` must be later than `borrow_date`, and the borrow
-date cannot be in the future.
+one. If `borrow_date` is omitted, it defaults to the current date. A borrow date
+in the past is rejected, and `expected_return_date` must be later than
+`borrow_date`.
+
+After the database transaction is committed, the service attempts to send a
+Telegram message containing the user email, book title, borrow date, and
+expected return date. A Telegram API failure does not roll back the borrowing.
 
 #### Filter borrowings
 
@@ -294,6 +332,7 @@ coverage report
 Library-Service-Project/
 - books_service/       # Book model, serializer, views, and routes
 - borrowing_service/   # Borrowing logic, filters, returns, and tests
+- borrowing_service/telegram.py  # Telegram notification helper
 - users_service/       # Custom user model, registration, and profile API
 - permissions/         # Shared REST framework permissions
 - library_conf/        # Django settings and root URL configuration
@@ -302,12 +341,24 @@ Library-Service-Project/
 - README.md
 ```
 
+## Implemented FLEX Coding Tasks
+
+The project currently implements the following selected tasks:
+
+1. Books Service CRUD
+2. Books Service permissions
+3. Users Service CRUD and JWT authentication
+4. Borrowing list and detail endpoints
+5. Borrowing creation with inventory management
+6. Borrowing filtering and user access restrictions
+7. Borrowing return functionality
+8. Telegram notification on borrowing creation
+
 ## Planned Functionality
 
 The full Library Service specification also includes functionality that is not
 part of the current implementation:
 
 - Stripe payments and overdue fines
-- Telegram notifications
 - Scheduled overdue borrowing checks
 - Docker Compose deployment
