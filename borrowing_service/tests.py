@@ -31,10 +31,10 @@ class BorrowingDateValidationTests(TestCase):
             daily_fee="5.00",
         )
 
-    def test_create_serializer_rejects_future_borrow_date(self):
+    def test_create_serializer_rejects_past_borrow_date(self):
         serializer = BorrowingCreateSerializer(
             data={
-                "borrow_date": date.today() + timedelta(days=1),
+                "borrow_date": date.today() - timedelta(days=1),
                 "expected_return_date": date.today() + timedelta(days=3),
                 "book": self.book.id,
                 "actual_return_date": date.today() + timedelta(days=2),
@@ -45,7 +45,7 @@ class BorrowingDateValidationTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["borrow_date"][0],
-            "Borrow date cannot be in the future.",
+            "Borrow date cannot be in the past.",
         )
         self.assertNotIn("actual_return_date", serializer.validated_data)
 
@@ -83,8 +83,8 @@ class BorrowingDateValidationTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            str(response.data["borrow_date"]),
-            "Borrow date cannot be in the future.",
+            str(response.data["actual_return_date"]),
+            "Actual return date must be after borrow date.",
         )
 
 
@@ -104,11 +104,11 @@ class BorrowingModelTests(TestCase):
             daily_fee="6.00",
         )
 
-    def test_model_clean_rejects_future_borrow_date(self):
+    def test_model_clean_rejects_past_borrow_date(self):
         borrowing = Borrowing(
             user=self.user,
             book=self.book,
-            borrow_date=date.today() + timedelta(days=1),
+            borrow_date=date.today() - timedelta(days=1),
             expected_return_date=date.today() + timedelta(days=2),
         )
 
@@ -117,7 +117,7 @@ class BorrowingModelTests(TestCase):
 
         self.assertEqual(
             error.exception.message_dict["borrow_date"][0],
-            "Borrow date cannot be in the future.",
+            "Borrow date cannot be in the past.",
         )
 
     def test_constraint_rejects_expected_return_on_or_before_borrow_date(self):

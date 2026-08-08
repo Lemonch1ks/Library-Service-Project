@@ -9,9 +9,16 @@ from users_service.serializers import UserSerializer
 from borrowing_service.telegram import send_telegram_message
 
 def validate_borrowing_dates(
-    borrow_date, expected_return_date, actual_return_date=None
+    borrow_date,
+    expected_return_date,
+    actual_return_date=None,
+    validate_borrow_date_not_past=False,
 ):
-    if borrow_date and borrow_date < date.today():
+    if (
+        validate_borrow_date_not_past
+        and borrow_date
+        and borrow_date < date.today()
+    ):
         raise serializers.ValidationError(
             {"borrow_date": "Borrow date cannot be in the past."}
         )
@@ -79,12 +86,13 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
             borrow_date=borrow_date,
             expected_return_date=expected_return_date,
             actual_return_date=actual_return_date,
+            validate_borrow_date_not_past=True,
         )
         return attrs
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-    borrow_date = serializers.DateField(default=date.today())
+    borrow_date = serializers.DateField(default=date.today)
     expected_return_date = serializers.DateField(required=True)
     actual_return_date = serializers.DateField(
         read_only=True,
@@ -107,6 +115,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         validate_borrowing_dates(
             borrow_date=borrow_date,
             expected_return_date=expected_return_date,
+            validate_borrow_date_not_past=True,
         )
         return attrs
 
