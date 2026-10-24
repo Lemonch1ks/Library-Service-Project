@@ -4,7 +4,9 @@ A REST API for managing a library's books, users, and book borrowings. The
 project is built with Django REST Framework and uses JWT authentication. It is
 intended to replace manual tracking of book inventory and borrowing records.
 
-The current implementation covers the selected FLEX tasks for the Books,
+This is a learning project built as part of a Python backend course, as
+practice for a technical assessment. The current implementation covers the
+selected FLEX tasks for the Books,
 Users, Borrowings, and Telegram notification services. Stripe payments and
 scheduled overdue checks are not implemented.
 
@@ -45,7 +47,6 @@ scheduled overdue checks are not implemented.
 ```bash
 git clone https://github.com/Lemonch1ks/Library-Service-Project.git
 cd Library-Service-Project
-
 ```
 
 ### 2. Create and activate a virtual environment
